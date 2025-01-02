@@ -27,7 +27,7 @@ client.on("text", (packet) => {
 });
 
 client.on("add_player", (packet) => {
-  const embed = {
+  const embeds = {
     embeds: [
       {
         description: `${packet.username}が参加しました!`,
@@ -35,6 +35,7 @@ client.on("add_player", (packet) => {
       },
     ],
   };
+  sendDiscordEmbeds(embeds);
 });
 
 discordClient.on("ready", () => {
