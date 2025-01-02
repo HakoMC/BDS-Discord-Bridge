@@ -26,16 +26,34 @@ client.on("text", (packet) => {
   console.log(message);
 });
 
-client.on("add_player", (packet) => {
-  const embeds = {
-    embeds: [
-      {
-        description: `${packet.username}が参加しました!`,
-        color: 9498256,
-      },
-    ],
-  };
-  sendDiscordEmbeds(embeds);
+client.on("player_list", (packet) => {
+  if (packet.records.type === "add") {
+    packet.records.records.forEach((record) => {
+      const embedData = {
+        embeds: [
+          {
+            description: `${record.username}が参加しました！`,
+            color: 9498256,
+          },
+        ],
+      };
+      sendDiscordEmbeds(embedData);
+    });
+  }
+
+  if (packet.records.type === "remove") {
+    packet.records.records.forEach((record) => {
+      const embedData = {
+        embeds: [
+          {
+            description: `${record.username}が退出しました`,
+            color: 15548997,
+          },
+        ],
+      };
+      sendDiscordEmbeds(embedData);
+    });
+  }
 });
 
 discordClient.on("ready", () => {
@@ -83,18 +101,31 @@ async function sendDiscordMessage(message) {
   }
 }
 
-async function sendDiscordEmbeds(embeds) {
+async function sendDiscordEmbeds(embedData) {
   try {
-    await axios.post(process.env.DISCORD_WEBHOOK, {
-      embeds: embeds,
-    });
+    await axios.post(process.env.DISCORD_WEBHOOK, embedData);
   } catch (error) {
     console.error("Discordへの送信エラー:", error);
   }
 }
 
-process.on("SIGINT", () => {
-  client.close();
-  console.log("切断しました");
-  process.exit(0);
+process.on("SIGINT", async () => {
+  try {
+    // 切断パケットを送信
+    client.queue("disconnect", {
+      message: "サーバーを終了します",
+    });
+
+    // 切断処理を待機
+    await new Promise((resolve) => {
+      client.once("disconnect", resolve);
+      client.close();
+    });
+
+    console.log("切断しました");
+    process.exit(0);
+  } catch (error) {
+    console.error("切断中にエラーが発生しました:", error);
+    process.exit(1);
+  }
 });
