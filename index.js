@@ -28,31 +28,29 @@ client.on("text", (packet) => {
 
 client.on("player_list", (packet) => {
   if (packet.records.type === "add") {
-    console.log(packet.records.records.uuid);
-    // packet.records.records.forEach((record) => {
-    //   const embedData = {
-    //     embeds: [
-    //       {
-    //         description: `${record.uuid}が参加しました！`,
-    //         color: 9498256,
-    //       },
-    //     ],
-    //   };
-    //   sendDiscordEmbeds(embedData);
-    // });
+    packet.records.records.forEach((record) => {
+      const embedData = {
+        embeds: [
+          {
+            description: `${record.uuid}が参加しました！`,
+            color: 9498256,
+          },
+        ],
+      };
+      sendDiscordEmbeds(embedData);
+    });
   } else if (packet.records.type === "remove") {
-    console.log(packet.records.records.uuid);
-    // packet.records.records.forEach((record) => {
-    //   const embedData = {
-    //     embeds: [
-    //       {
-    //         description: `${record.uuid}が参加しました！`,
-    //         color: 9498256,
-    //       },
-    //     ],
-    //   };
-    //   sendDiscordEmbeds(embedData);
-    // });
+    packet.records.records.forEach((record) => {
+      const embedData = {
+        embeds: [
+          {
+            description: `${record.uuid}が退出しました！`,
+            color: 15548997,
+          },
+        ],
+      };
+      sendDiscordEmbeds(embedData);
+    });
   }
 });
 
