@@ -70,3 +70,7 @@ async function sendDiscord(playerName, message) {
     console.error("Discordへの送信エラー:", error);
   }
 }
+
+process.on("exit", () => {
+  client.close("切断しました");
+});
