@@ -26,9 +26,21 @@ client.on("text", (packet) => {
   console.log(message);
 });
 
+// 初回接続時のプレイヤーリスト処理を制御するフラグ
+let isInitialPlayerList = true;
+
+// プレイヤー名を保持するためのMap
+const playerMap = new Map();
+
 client.on("player_list", (packet) => {
   if (packet.records.type === "add") {
     packet.records.records.forEach((record) => {
+      // 初回接続時はプレイヤー名を記録するだけ
+      if (isInitialPlayerList) {
+        playerMap.set(record.uuid, record.username);
+        return;
+      }
+
       const embedData = {
         embeds: [
           {
@@ -39,18 +51,27 @@ client.on("player_list", (packet) => {
       };
       sendDiscordEmbeds(embedData);
     });
+    // 初回のプレイヤーリスト処理が完了したらフラグを更新
+    isInitialPlayerList = false;
   }
 
   if (packet.records.type === "remove") {
     packet.records.records.forEach((record) => {
+      // 保存していたプレイヤー名を使用
+      const username = playerMap.get(record.uuid) || "不明なプレイヤー";
+
       const embedData = {
         embeds: [
           {
-            description: `${record.username}が退出しました`,
+            description: `${username}が退出しました`,
             color: 15548997,
           },
         ],
       };
+
+      // プレイヤーをMapから削除
+      playerMap.delete(record.uuid);
+
       sendDiscordEmbeds(embedData);
     });
   }
