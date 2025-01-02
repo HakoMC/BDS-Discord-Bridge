@@ -111,18 +111,13 @@ async function sendDiscordEmbeds(embedData) {
 
 process.on("SIGINT", async () => {
   try {
-    // 切断パケットを送信
-    client.queue("disconnect", {
-      message: "サーバーを終了します",
-    });
-
-    // 切断処理を待機
     await new Promise((resolve) => {
-      client.once("disconnect", resolve);
       client.close();
+      client.once("close", () => {
+        console.log("切断しました");
+        resolve();
+      });
     });
-
-    console.log("切断しました");
     process.exit(0);
   } catch (error) {
     console.error("切断中にエラーが発生しました:", error);
