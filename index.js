@@ -99,6 +99,8 @@ discordClient.on("messageCreate", (message) => {
 
   if (message.author.bot) return; // ボットのメッセージは無視
 
+  if (message.content === "") return;
+
   if (message.content === ".list") {
     const playerCount = playerList.length;
     const playerNames = playerList.map((player) => player.name).join(", ");
