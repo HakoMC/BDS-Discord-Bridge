@@ -71,6 +71,6 @@ async function sendDiscord(playerName, message) {
   }
 }
 
-process.on("exit", () => {
+process.on("SIGINT", () => {
   client.close("切断しました");
 });
