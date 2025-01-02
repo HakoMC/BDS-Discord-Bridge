@@ -111,13 +111,15 @@ async function sendDiscordEmbeds(embedData) {
 
 process.on("SIGINT", async () => {
   try {
-    await new Promise((resolve) => {
-      client.close();
-      client.once("close", () => {
-        console.log("切断しました");
-        resolve();
-      });
-    });
+    await Promise.race([
+      new Promise((resolve) => {
+        client.close();
+        client.once("close", resolve);
+      }),
+      new Promise((resolve) => setTimeout(resolve, 2000)),
+    ]);
+
+    console.log("切断しました");
     process.exit(0);
   } catch (error) {
     console.error("切断中にエラーが発生しました:", error);
