@@ -21,8 +21,20 @@ const client = bedrock.createClient({
 client.on("text", (packet) => {
   if (packet.source_name === "DISCORD") return;
   if (packet.type !== "chat") return;
-  sendDiscord(packet.source_name, packet.message);
-  console.log(packet.message);
+  const message = `<${packet.source_name}> ${packet.message}`;
+  sendDiscordMessage(message);
+  console.log(message);
+});
+
+client.on("add_player", (packet) => {
+  const embed = {
+    embeds: [
+      {
+        description: `${packet.username}が参加しました!`,
+        color: 9498256,
+      },
+    ],
+  };
 });
 
 discordClient.on("ready", () => {
@@ -36,7 +48,7 @@ discordClient.on("messageCreate", (message) => {
   if (message.author.bot) return; // ボットのメッセージは無視
 
   console.log(
-    `Discord message: ${message.author.username}: ${message.content}`,
+    `Discord message: ${message.author.displayName}: ${message.content}`,
   );
 
   let author = message.author.displayName;
@@ -60,10 +72,9 @@ discordClient.on("messageCreate", (message) => {
 
 discordClient.login(process.env.DISCORD_TOKEN);
 
-async function sendDiscord(playerName, message) {
+async function sendDiscordMessage(message) {
   try {
     await axios.post(process.env.DISCORD_WEBHOOK, {
-      username: playerName,
       content: message,
     });
   } catch (error) {
@@ -71,6 +82,18 @@ async function sendDiscord(playerName, message) {
   }
 }
 
+async function sendDiscordEmbeds(embeds) {
+  try {
+    await axios.post(process.env.DISCORD_WEBHOOK, {
+      embeds: embeds,
+    });
+  } catch (error) {
+    console.error("Discordへの送信エラー:", error);
+  }
+}
+
 process.on("SIGINT", () => {
-  client.close("切断しました");
+  client.close();
+  console.log("切断しました");
+  process.exit(0);
 });
