@@ -26,56 +26,33 @@ client.on("text", (packet) => {
   console.log(message);
 });
 
-// プレイヤーリストを保持するためのSet
-let currentPlayers = new Set();
-let isInitialPlayerList = true;
-
 client.on("player_list", (packet) => {
   if (packet.records.type === "add") {
-    // 現在のプレイヤーリストを取得
-    const newPlayers = new Set(
-      packet.records.records.map((record) => record.username),
-    );
-
-    if (isInitialPlayerList) {
-      // 初回は記録のみ
-      currentPlayers = newPlayers;
-      isInitialPlayerList = false;
-      return;
-    }
-
-    // 新しく参加したプレイヤーを検出
-    newPlayers.forEach((player) => {
-      if (!currentPlayers.has(player)) {
-        const embedData = {
-          embeds: [
-            {
-              description: `${player}が参加しました！`,
-              color: 9498256,
-            },
-          ],
-        };
-        sendDiscordEmbeds(embedData);
-      }
-    });
-
-    // 退出したプレイヤーを検出
-    currentPlayers.forEach((player) => {
-      if (!newPlayers.has(player)) {
-        const embedData = {
-          embeds: [
-            {
-              description: `${player}が退出しました`,
-              color: 15548997,
-            },
-          ],
-        };
-        sendDiscordEmbeds(embedData);
-      }
-    });
-
-    // プレイヤーリストを更新
-    currentPlayers = newPlayers;
+    console.log(packet.records.records.uuid);
+    // packet.records.records.forEach((record) => {
+    //   const embedData = {
+    //     embeds: [
+    //       {
+    //         description: `${record.uuid}が参加しました！`,
+    //         color: 9498256,
+    //       },
+    //     ],
+    //   };
+    //   sendDiscordEmbeds(embedData);
+    // });
+  } else if (packet.records.type === "remove") {
+    console.log(packet.records.records.uuid);
+    // packet.records.records.forEach((record) => {
+    //   const embedData = {
+    //     embeds: [
+    //       {
+    //         description: `${record.uuid}が参加しました！`,
+    //         color: 9498256,
+    //       },
+    //     ],
+    //   };
+    //   sendDiscordEmbeds(embedData);
+    // });
   }
 });
 
